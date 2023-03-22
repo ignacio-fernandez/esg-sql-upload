@@ -1,0 +1,12 @@
+{
+    "(?i)date": "DATE",
+    "(?i)trend|pctl|quartile": "INT",
+    "(?i)weight|score": ["FLOAT", 2],
+    "(?i)ticker": ["NVARCHAR", 50],
+    "(?i)id": ["NVARCHAR", 18],
+    "(?i)cusip": ["NVARCHAR", 9],
+    "(?i)sedol": ["NVARCHAR", 7],
+    "(?i)isin": ["NVARCHAR", 12],
+    "(?i)cntry": ["NVARCHAR", 2],
+    "(?i)_rating": ["NVARCHAR", 3]
+}
