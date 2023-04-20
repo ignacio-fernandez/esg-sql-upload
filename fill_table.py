@@ -1,14 +1,10 @@
-import sys
 import json
 import os
 import fnmatch
 import pandas as pd
-import numpy as np
-import pymysql
-import datetime
 import sqlalchemy
 import re
-from dateutil.parser import parse
+from helpers import cleanup_dates
 #from sqlalchemy import create_engine, types
 
 # loop through columns
@@ -20,6 +16,7 @@ from dateutil.parser import parse
 # use ESG command?
 # Google API
 
+
 def get_regexes():
     with open('esg_columns_regexes.json') as f:
         data = f.read()
@@ -27,6 +24,7 @@ def get_regexes():
     js = json.loads(data)
 
     return js
+
 
 def get_data_types(df):
     data_types = {}
@@ -51,12 +49,6 @@ def get_data_types(df):
 
     return data_types
 
-def cleanup_dates(df):
-    invalid_date = 19000100
-    date_col = 'IVA_RATING_DATE'
-    df[date_col] = df[date_col].apply(lambda x: np.nan if x == invalid_date else x)
-
-    return df
 
 def create_dataframe(path_to_file):
     print(path_to_file)
@@ -64,6 +56,7 @@ def create_dataframe(path_to_file):
     df = df.rename(columns=lambda x: x.strip().replace(' ', ''))
     df = cleanup_dates(df)
     return df
+
 
 root_path = '../foo'#sys.argv[1]
 pattern = '*.xlsx'
