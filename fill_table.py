@@ -2,7 +2,6 @@ import os
 import fnmatch
 import sys
 import zipfile
-import sqlalchemy
 from helpers import get_non_intersect, add_col_query
 from table_functions import *
 
@@ -25,22 +24,34 @@ prev_cols = []
 
 engine = sqlalchemy.create_engine("mysql+pymysql://" + 'root' + ":" + '123' + "@" + 'localhost' + "/" + database_name)
 
-for root, dirs, files in os.walk(root_path):
-    for filename in fnmatch.filter(files, pattern):
-        path_to_file = os.path.join(root, filename)
-        df = create_dataframe(path_to_file, is_csv)
 
-        if len(prev_cols) == 0:
-            data_types = get_data_type_strings(df.columns)
-            prev_cols = df.columns
-        elif len(prev_cols) != len(df.columns):
-            new_cols = get_non_intersect(prev_cols, df.columns)
-            prev_cols = df.columns
-            data_types = get_data_type_strings(new_cols)
-            query = add_col_query('ESG', data_types)
-            engine.execute(add_col_query('ESG', data_types))
+zip_file = root_path + '.zip'
+zipfile.ZipFile(zip_file).extractall(root_path)
 
-        rows_affected = df.to_sql('ESG', engine, if_exists='append', index=False, dtype=convert_to_datatypes(data_types))
-        print(rows_affected, 'rows affected')
-        #os.remove(path_to_file)
-        print('Deleted', path_to_file)
+
+for root_zipped, dirs_zipped, files_zipped in os.walk(root_path):
+    for zip_file in fnmatch.filter(files_zipped, '*.zip'):
+        zip_path = os.path.join(root_zipped, zip_file)
+        zipfile.ZipFile(os.path.join(root_zipped, zip_file)).extractall(os.path.join(root_path, os.path.splitext(zip_file)[0]))
+        zip_path = zip_path.replace('.zip', '')
+        for root, dirs, files in os.walk(zip_path):
+            for filename in fnmatch.filter(files, pattern):
+
+                path_to_file = os.path.join(root, filename)
+                df = create_dataframe(path_to_file, is_csv)
+
+                if len(prev_cols) == 0:
+                    data_types = get_data_type_strings(df.columns)
+                    prev_cols = df.columns
+                elif len(prev_cols) != len(df.columns):
+                    new_cols = get_non_intersect(prev_cols, df.columns)
+                    prev_cols = df.columns
+                    data_types = get_data_type_strings(new_cols)
+                    query = add_col_query('ESG', data_types)
+                    engine.execute(add_col_query('ESG', data_types))
+
+                rows_affected = df.to_sql('ESG', engine, if_exists='append', index=False, dtype=convert_to_datatypes(data_types))
+                print(rows_affected, 'rows affected')
+                os.remove(path_to_file)
+                print('Deleted', path_to_file)
+
