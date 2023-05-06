@@ -8,5 +8,6 @@
     "(?i)sedol": ["NVARCHAR", 7],
     "(?i)isin": ["NVARCHAR", 12],
     "(?i)cntry": ["NVARCHAR", 2],
-    "(?i)_rating": ["NVARCHAR", 3]
+    "(?i)_rating": ["NVARCHAR", 3],
+    "STATE_OWNED_ENTERPRISE": ["NVARCHAR", 3]
 }
