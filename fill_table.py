@@ -64,13 +64,13 @@ def create_dataframe(path_to_file, is_csv):
 
 
 if len(sys.argv) != 2 and len(sys.argv) != 5:
-    print('Incorrect number of parameters', len(sys.argv))
+    print('Incorrect number of parameters', len(sys.argv), '\nType python ./fill_table.py help for more information')
     sys.exit(1)
 
-
 if sys.argv[1] == 'help':
-    print('fill_table.py <zip file> <database name> <table name> <is csv (1 if true else 0)>')
-    sys.exit(0)
+    print('python fill_table.py <zip file> <database name> <table name> <is csv (1 if true else 0)>')
+    sys.exit(2)
+
 
 root_path = sys.argv[1]
 database_name = sys.argv[2]
