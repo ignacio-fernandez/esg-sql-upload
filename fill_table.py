@@ -1,20 +1,12 @@
 import json
 import os
 import fnmatch
+import sys
+import zipfile
 import pandas as pd
 import sqlalchemy
 import re
 from helpers import cleanup_dates, get_non_intersect, add_col_query
-#from sqlalchemy import create_engine, types
-
-# loop through columns
-# isinstance(var, data_type)
-# delete file after inserting to db
-# argparse
-# pd.to_sql()
-# separate file for adding rows
-# use ESG command?
-# Google API
 
 
 def get_regexes():
@@ -60,24 +52,39 @@ def convert_to_datatypes(data_type_strings):
     return d
 
 
-def create_dataframe(path_to_file):
+def create_dataframe(path_to_file, is_csv):
     print(path_to_file)
-    df = pd.read_excel(path_to_file, engine='openpyxl')
+    if is_csv:
+        df = pd.read_csv(path_to_file)
+    else:
+        df = pd.read_excel(path_to_file, engine='openpyxl')
     df = df.rename(columns=lambda x: x.strip().replace(' ', ''))
     df = cleanup_dates(df)
     return df
 
 
-root_path = '../foo'#sys.argv[1]
-pattern = '*.xlsx'
+if len(sys.argv) != 2 and len(sys.argv) != 5:
+    print('Incorrect number of parameters', len(sys.argv))
+    sys.exit(1)
+
+
+if sys.argv[1] == 'help':
+    print('fill_table.py <zip file> <database name> <table name> <is csv (1 if true else 0)>')
+    sys.exit(0)
+
+root_path = sys.argv[1]
+database_name = sys.argv[2]
+table_name = sys.argv[3]
+is_csv = sys.argv[4]
+pattern = '*.csv' if is_csv else '*.xlsx'
 prev_cols = []
 
-engine = sqlalchemy.create_engine("mysql+pymysql://" + 'root' + ":" + '123' + "@" + 'localhost' + "/" + 'foo')
+engine = sqlalchemy.create_engine("mysql+pymysql://" + 'root' + ":" + '123' + "@" + 'localhost' + "/" + database_name)
 
 for root, dirs, files in os.walk(root_path):
     for filename in fnmatch.filter(files, pattern):
         path_to_file = os.path.join(root, filename)
-        df = create_dataframe(path_to_file)
+        df = create_dataframe(path_to_file, is_csv)
 
         if len(prev_cols) == 0:
             data_types = get_data_type_strings(df.columns)
